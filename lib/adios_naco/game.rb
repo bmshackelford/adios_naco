@@ -26,6 +26,10 @@ module AdiosNaco
       last_tick + 3
     end
     
+    def to_s
+      "<#{self.class} #{self.id} #{self.player1} vs #{self.player2}>"
+    end
+    
   end
 
 end

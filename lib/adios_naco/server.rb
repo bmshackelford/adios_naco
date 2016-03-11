@@ -1,7 +1,13 @@
 module AdiosNaco
 
   class Server < Sinatra::Base
-
+    
+    set :public_folder, File.expand_path(File.join(__dir__, '..','..','html'))
+    
+    get '/' do
+      send_file File.join(settings.public_folder, 'app.html')  
+    end
+    
     get '/version' do
       VERSION
     end
