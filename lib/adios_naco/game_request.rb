@@ -48,22 +48,17 @@ module AdiosNaco
                                              
       if reqs.size == 1
         g = Game.create(:player1 => reqs.first.player_name , :player2 => player_name)
-        $stderr.puts "EXPECTING TO START GAME #{g.id}"
         if g.saved? && reqs.update(:game_id => g.id)
           self.game_id = g.id
           self.save
-          $stderr.puts "#{self.player_name } JOINED A GAME with #{g.player1}"
           return true
         else
           # The other player who was going to join us,
           # joined another game instead. Delete the game and give up.
-          $stderr.puts "#{self.player_name } COULD NOT JOIN A GAME"
-          $stederr.puts "Unexpected problem saving #{g.inspect}" unless g.saved?
           g.destroy if g.saved?
           return false
         end
       else # We didn't find anyone to join the game.
-        $stderr.puts "NO ONE WANTS TO PLAY JUST NOW."
         return false
       end
     end

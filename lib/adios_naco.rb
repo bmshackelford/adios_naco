@@ -15,6 +15,7 @@ $LOAD_PATH.unshift(File.join(__dir__, 'adios_naco'))
 require 'version'
 require 'game'
 require 'game_request'
+require 'round'
 require 'server'
 
 
