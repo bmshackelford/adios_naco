@@ -11,7 +11,7 @@ module AdiosNaco
     property :player2,    String
     
     has n, :game_requests
-    has n, :rounds
+    
    
     validates_presence_of :player1, :player2
     

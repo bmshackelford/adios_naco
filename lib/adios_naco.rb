@@ -13,11 +13,11 @@ require 'redis_adapter'
 $LOAD_PATH.unshift(File.join(__dir__, 'adios_naco'))
 
 require 'version'
+require 'turn'
 require 'game'
 require 'game_request'
-require 'round'
-require 'server'
 
+require 'server'
 
 module AdiosNaco
 
