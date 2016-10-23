@@ -1,12 +1,16 @@
 module AdiosNaco  
   class Turn
     include DataMapper::Resource
+    
     property :id,         Serial,    :key => true 
-    property :action,     String
-    property :player,     String
-    property :tick,       EpochTime
+    property :action,     String,    :required => true
+    property :player,     String,    :required => true      
+    property :tick,       EpochTime, :required => true 
   
     belongs_to :game
  
-  end 
+  end
+  
+  Turn.raise_on_save_failure = true
+    
 end

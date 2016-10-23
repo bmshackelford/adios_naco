@@ -21,10 +21,42 @@ describe Turn do
  end
 
 
-  it "must have an action" 
-  it "must have the tick "
-  it "must have a game id"
-  it "must have a player id"
+  it "raises an error unless we have an action" do 
+  
+    expect {
+        Turn.create(:action   => nil,
+                    :game_id  => game.id,
+                    :player   => "Dad",
+                    :tick     => game.next_tick )
+    }.to raise_error(DataMapper::SaveFailureError)
+  end
+  
+  it "raises an error unless we have the tick "do
+   expect {
+         Turn.create:action   => "load",
+                  :game_id  => game.id,
+                  :player   => "Dad",
+                  :tick     => nil 
+   }.to raise_error(DataMapper::SaveFailureError)
+ end
+
+  it "raises an error unless we have a game id" do
+ expect {
+       Turn.create(:action   => "load",
+                   :game_id  => nil,
+                   :player   => "Dad",
+                   :tick     => game.next_tick )
+    }.to raise_error(DataMapper::SaveFailureError)
+  end
+                                  
+  it "raises an error unless we have a player id" do
+  expect {
+       t = Turn.create(:action   => "load",
+                     :game_id  => game.id,
+                     :player   => nil,
+                     :tick     => game.next_tick )
+  }.to raise_error(DataMapper::SaveFailureError)
+  end
 end 
       
       

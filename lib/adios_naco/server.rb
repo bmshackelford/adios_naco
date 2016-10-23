@@ -55,6 +55,23 @@ module AdiosNaco
       r.to_json
     end
     
+    # Game Turn Controller
+    
+    post '/api/gameTurns' do
+      body = JSON.parse request.body.read
+      t = Turn.create(
+        :game_id =>  body['game_id'], 
+        :player  =>  body['player1_name'],
+        :action  =>  body['player1_action'],
+        :tick    =>  body['tick']
+      )
+      status 201
+      { 'game_id'  => t.game_id,
+        'player1_name' => t.player,
+        'player1_action' => t.action,
+        'tick' => t.tick.to_i   
+       }.to_json
+    end
     
   end
 
