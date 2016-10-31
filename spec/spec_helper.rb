@@ -9,4 +9,6 @@ RSpec.configure do |config|
   DataMapper.finalize
   Game.auto_migrate!
   GameRequest.auto_migrate!
+  Turn.auto_migrate!
+  
 end

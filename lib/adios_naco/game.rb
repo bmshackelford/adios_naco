@@ -9,8 +9,13 @@ module AdiosNaco
     property :version,    String,    :default => lambda{|r,p| AdiosNaco::VERSION }
     property :player1,    String
     property :player2,    String
-    
+    property :player1_bullets,    Integer,  :default => 0   
+    property :player2_bullets,    Integer,  :default => 0  
+    property :player1_shields,    Integer,  :default => 0  
+    property :player2_shields,    Integer,  :default => 0 
+    property :dead_player,        String
     has n, :game_requests
+    
     
    
     validates_presence_of :player1, :player2
@@ -27,10 +32,41 @@ module AdiosNaco
       last_tick + 3
     end
     
+    def load(player)
+      self.player1_bullets += 1  if player == :player1
+      self.player2_bullets += 1  if player == :player2
+      self.save!
+    end
+ 
+    def fire_bullet(player)
+      self.player1_bullets -= 1  if player == :player1
+      self.player2_bullets -= 1  if player == :player2
+      self.save!
+    end
+    
+    def use_shield(player)
+      self.player1_shields += 1  if player == :player1
+      self.player2_shields += 1  if player == :player2
+      self.save!
+    end
+    
+    def reset_shield(player)
+      self.player1_shields = 0  if player == :player1
+      self.player2_shields = 0  if player == :player2
+      self.save!
+    end
+    
+    def kill_player(player)
+      self.dead_player = player
+      self.save! 
+    end
+    
     def to_s
       "<#{self.class} #{self.id} #{self.player1} vs #{self.player2}>"
     end
     
   end
+
+  # Game.raise_on_save_failure = true
 
 end

@@ -54,4 +54,87 @@ describe Game do
     expect(game.next_tick).to eq(15)    
   end
   
+  
+  it "starts both players with zero bullets" do
+    
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    expect(g.player1_bullets).to eq(0)
+    expect(g.player2_bullets).to eq(0)
+    
+  end
+
+  it "can add a bullet for a player" do
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    g.load(:player1)
+    
+    # verify that we saved the result of the load action
+    game_id = g.id
+    loaded_game = Game.get(game_id)
+    
+    expect(loaded_game.player1_bullets).to eq(1)
+    expect(loaded_game.player2_bullets).to eq(0)
+  end  
+    
+  it "can remove a bullet for a player" do
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    g.player1_bullets = 3
+    g.player2_bullets = 3
+    g.save
+    g.fire_bullet(:player1)
+    
+    # verify that we saved the result of the fire action
+    game_id = g.id
+    loaded_game = Game.get(game_id)
+  
+    expect(loaded_game.player1_bullets).to eq(2)
+    expect(loaded_game.player2_bullets).to eq(3)
+  end
+  
+  
+  it "starts both players with zero shields" do
+    
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    expect(g.player1_shields).to eq(0)
+    expect(g.player2_shields).to eq(0)
+  end
+  
+  
+  it "tracks number of shields used"do
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    g.use_shield(:player1)
+  
+    # verify that we saved the result of the load action
+    game_id = g.id
+    loaded_game = Game.get(game_id)
+  
+    expect(loaded_game.player1_shields).to eq(1)
+    expect(loaded_game.player2_shields).to eq(0)
+  end  
+      
+  it "resets shield use to zero" do
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    g.player1_shields = 2
+    g.player2_shields = 2
+    g.save
+    
+    g.reset_shield(:player1)
+    
+    # verify that we saved the result of the fire action
+    game_id = g.id
+    loaded_game = Game.get(game_id)
+  
+    expect(loaded_game.player1_shields).to eq(0)
+    expect(loaded_game.player2_shields).to eq(2)
+  end
+  
+  it "records which player is killed" do
+    g = Game.create(:player1=>"Dad",:player2=>"Bea")
+    g.kill_player(:player1)
+    # verify that we saved the result of the fire action
+    game_id = g.id
+    loaded_game = Game.get(game_id)
+    expect(loaded_game.dead_player).to eq("player1")
+  end
+  
+
 end
