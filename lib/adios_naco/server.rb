@@ -60,16 +60,20 @@ module AdiosNaco
     post '/api/gameTurns' do
       body = JSON.parse request.body.read
       t = Turn.create(
-        :game_id =>  body['game_id'], 
-        :player  =>  body['player1_name'],
-        :action  =>  body['player1_action'],
-        :tick    =>  body['tick']
+        :game_id  =>  body['game_id'], 
+        :player1  =>  body['player'],          # This is wrong because the player
+        :action1  =>  body['action'],          # could just as easily have been
+        :tick     =>  body['tick']             # player2 instead of player1.
       )
+      
+      # return HTTP 201 Resource Created status code
       status 201
+      
+      # returns this in the message body
       { 'game_id'  => t.game_id,
-        'player1_name' => t.player,
-        'player1_action' => t.action,
-        'tick' => t.tick.to_i   
+        'player'   => t.player1,
+        'action'   => t.action1,
+        'tick'     => t.tick.to_i   
        }.to_json
     end
     

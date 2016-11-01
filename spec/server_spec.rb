@@ -118,52 +118,63 @@ describe AdiosNaco do
   end
   
   context "gameTurn endpoint" do 
-  
-    before :each do
-      
-      Game.auto_migrate!
-      GameRequest.auto_migrate!
-      Turn.auto_migrate!
-      
-      @game = Game.create(  :player1 => 'Beatrice', 
-                            :player2 => 'Dad' )
 
-    end
+    # We'll also need some approach that would prevent players from impersonating another
+    # player. Perhaps when a game is returned we give each player their own secret 
+    # player-id and require that it is used in future transactions. 
     
-    it "saves turns" do
-      
-      # Note that we are just starting representing turns and we have to change our approach.
-      # We either need Turn to represent actions of both players or we need gameTurn to deal
-      # turn records for each player. We'll also need some approach that would prevent
-      # players from impersonating another player. Perhaps when a game is returned we give 
-      # each player their own secret player-id and require that it is used in future
-      # transactions. 
-      
-      tick = @game.last_tick
-      
-      post('/api/gameTurns', { 'game_id'         =>  @game.id,
-                               'player1_name'    => 'Beatrice', 
-                               'player1_action'  => 'LOAD',
-                               'tick'            => tick
-                              }.to_json )
+    context "after one player takes a turn" do
 
-      expect(last_response.status).to eq(201)
+      before :each do
       
-      # verify that we return the new game when it is created
-      gameTurn = JSON.parse(last_response.body)
-      expect(gameTurn['player1_name']).to eq('Beatrice')
-      expect(gameTurn['player1_action']).to eq('LOAD')
-      expect(gameTurn['tick']).to eq(tick)
-      expect(gameTurn['game_id']).to eq(@game.id)
+        Game.auto_migrate!
+        GameRequest.auto_migrate!
+        Turn.auto_migrate!
       
-      # verify that the database has been updated with the new game
-      expect(Turn.count).to eq(1)
-      expect(Turn.last.player).to eq('Beatrice')
-    end
+        @game = Game.create(  :player1 => 'Beatrice', 
+                              :player2 => 'Dad' )
+                                                            
+        @tick = @game.last_tick
+      
+        @turn = { 'game_id'   =>  @game.id,
+                  'player'    => 'Dad', 
+                  'action'    => 'load',
+                  'tick'      => @tick
+                }.to_json
+      end
     
-    
-    
-  end
+      it "sends an HTTP status code indicating success" do
+        post('/api/gameTurns', @turn)
+        expect(last_response.status).to eq(201)
+      end
+      
+      it "returns the submitted turn record" do
+        post('/api/gameTurns', @turn)
+        responseTurn = JSON.parse(last_response.body)
+        expect(responseTurn['player']).to eq('Dad')
+        expect(responseTurn['action']).to eq('load')
+        expect(responseTurn['tick']).to eq(@tick)
+        expect(responseTurn['game_id']).to eq(@game.id)
+      end
+   
+      it "doesn't send a turn result since only one player has acted" do
+        post('/api/gameTurns', @turn)
+        responseTurn = JSON.parse(last_response.body)
+        expect(responseTurn['opponent_action']).to be_nil
+      end
+      
+      it "updates the database with the turn record" do
+        post('/api/gameTurns', @turn)
+        # Verify that the database has been updated with the new game.
+        # Here we specifically check player2 and action2 two because,
+        # according to the game, Dad is the second player.        
+        expect(Turn.count).to eq(1)
+        expect(Turn.last.player2).to eq('Dad')
+        expect(Turn.last.action2).to eq('load') 
+      end
+      
+    end # context - after one player takes a turn
+  end # context - gameTurn endpoint
   
   
 end
