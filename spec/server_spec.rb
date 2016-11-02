@@ -173,8 +173,64 @@ describe AdiosNaco do
         expect(Turn.last.action2).to eq('load') 
       end
       
-    end # context - after one player takes a turn
-  end # context - gameTurn endpoint
+    end 
+  
+    context "after the second player takes a turn" do
+  
+      before :each do
+        
+        Game.auto_migrate!
+        GameRequest.auto_migrate!
+        Turn.auto_migrate!
+        
+        @game = Game.create(  :player1 => 'Beatrice', 
+                              :player2 => 'Dad' )
+        
+        # Create first turn in the database
+        Turn.create( :tick     => @game.next_tick,
+                     :game_id  => @game.id,
+                     :player2  => "Dad",
+                     :action2  => "load")
+        
+        # Take a second turn through the server
+        @second_turn = { 'game_id'   => @game.id,
+                         'tick'      => @game.next_tick,
+                         'player'    => 'Beatrice', 
+                         'action'    => 'shoot' 
+                       }.to_json  
+      end
+     
+      it "sends an HTTP status code indicating success" do
+        post('/api/gameTurns', @second_turn)
+        expect(last_response.status).to eq(201)
+      end
+      
+      it "returns the submitted turn record" do
+        post('/api/gameTurns', @second_turn)
+        res = JSON.parse(last_response.body)
+        expect(res['player']).to eq('Beatrice')
+        expect(res['action']).to eq('shoot')
+        expect(res['game_id']).to eq(@game.id)
+        expect(res['tick']).to eq(@game.next_tick)
+      end
+      
+      it "send the turn result since both players have acted" do
+        post('/api/gameTurns', @second_turn)
+        res = JSON.parse(last_response.body)
+        expect(res['opponent_action']).to eq('load')
+        expect(res['death']).to eq('Dad')
+      end
+      
+      it "updates the database with the turn record" do
+        post('/api/gameTurns', @second_turn)
+        expect(Turn.count).to eq(1)
+        expect(Turn.last.player1).to eq('Beatrice')
+        expect(Turn.last.action1).to eq('shoot') 
+      end
+  
+    end
+    
+  end  
   
   
 end

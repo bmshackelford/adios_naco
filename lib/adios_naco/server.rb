@@ -58,22 +58,38 @@ module AdiosNaco
     # Game Turn Controller
     
     post '/api/gameTurns' do
+      
       body = JSON.parse request.body.read
-      t = Turn.create(
-        :game_id  =>  body['game_id'], 
-        :player1  =>  body['player'],          # This is wrong because the player
-        :action1  =>  body['action'],          # could just as easily have been
-        :tick     =>  body['tick']             # player2 instead of player1.
-      )
+      
+      game = Game.get(body['game_id'])
+
+      
+      t = Turn.last(:game_id => body['game_id'], :tick => body['tick'])
+
+      num = 1 if body['player'] ==  game.player1
+      num = 2 if body['player'] ==  game.player2
+      
+      if t.nil? # first player to take a turn
+        t = Turn.create(
+                          :game_id               =>  body['game_id'], 
+                          :tick                  =>  body['tick'],
+                          "player#{num}".to_sym  =>  body['player'],         
+                          "action#{num}".to_sym  =>  body['action'])
+
+      else # second player to take a turn
+        t.update(
+                          "player#{num}".to_sym  =>  body['player'],         
+                          "action#{num}".to_sym  =>  body['action'])
+      end
       
       # return HTTP 201 Resource Created status code
       status 201
       
       # returns this in the message body
       { 'game_id'  => t.game_id,
-        'player'   => t.player1,
-        'action'   => t.action1,
-        'tick'     => t.tick.to_i   
+        'tick'     => t.tick.to_i,   
+        'player'   => body['player'], 
+        'action'   => body['action']  
        }.to_json
     end
     
