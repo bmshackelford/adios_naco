@@ -30,11 +30,11 @@ module AdiosNaco
       
       puts "-->  Took a turn #{@player1}: #{@action1} vs #{@player2}: #{@action2}"
             
-      game.dead_player = @player2 if @action1 == "shoot" && @action2 != "shield"
-      game.dead_player = @player1 if @action2 == "shoot" && @action1 != "shield"         
-       
+      game.update(:dead_player => @player2) if @action1 == "shoot" && @action2 != "shield"
+      game.update(:dead_player => @player1) if @action2 == "shoot" && @action1 != "shield"         
+         
       puts "-->  Too bad. #{game.dead_player} died." unless game.dead_player.nil?
-      
+       
     end
   end
   

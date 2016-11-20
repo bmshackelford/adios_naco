@@ -66,31 +66,54 @@ module AdiosNaco
       
       t = Turn.last(:game_id => body['game_id'], :tick => body['tick'])
 
-      num = 1 if body['player'] ==  game.player1
-      num = 2 if body['player'] ==  game.player2
-      
+      if body['player'] ==  game.player1
+        current_player  = :player1
+        current_action  = :action1
+        opponent_player = :player2
+        opponent_action = :action2
+      end 
+     
+       if body['player'] ==  game.player2
+        current_player  = :player2
+        current_action  = :action2
+        opponent_player = :player1
+        opponent_action = :action1
+      end 
+    
       if t.nil? # first player to take a turn
         t = Turn.create(
-                          :game_id               =>  body['game_id'], 
-                          :tick                  =>  body['tick'],
-                          "player#{num}".to_sym  =>  body['player'],         
-                          "action#{num}".to_sym  =>  body['action'])
+                          :game_id        =>  body['game_id'], 
+                          :tick           =>  body['tick'],
+                          current_player  =>  body['player'],         
+                          current_action  =>  body['action'])
 
       else # second player to take a turn
         t.update(
-                          "player#{num}".to_sym  =>  body['player'],         
-                          "action#{num}".to_sym  =>  body['action'])
+                          current_player  =>  body['player'],         
+                          current_action  =>  body['action'])
       end
       
       # return HTTP 201 Resource Created status code
       status 201
       
       # returns this in the message body
-      { 'game_id'  => t.game_id,
-        'tick'     => t.tick.to_i,   
-        'player'   => body['player'], 
-        'action'   => body['action']  
-       }.to_json
+      turn_response = { 'game_id'  => t.game_id,
+                        'tick'     => t.tick.to_i,   
+                        'player'   => body['player'], 
+                        'action'   => body['action'] } 
+      if t.action1 && t.action2
+        turn_response.merge!({ 
+                        'opponent_action' => t[opponent_action]
+        })
+      end
+
+      if game.reload && game.dead_player
+         turn_response.merge!({ 
+                        'death' => game.dead_player
+        })
+      end
+      puts turn_response.to_json
+      turn_response.to_json
     end
     
   end
