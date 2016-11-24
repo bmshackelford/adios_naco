@@ -36,6 +36,7 @@ module AdiosNaco
       self.player1_bullets += 1  if player == :player1
       self.player2_bullets += 1  if player == :player2
       self.save!
+      puts "-> #{player} loaded \n#{self.inspect}"
     end
  
     def fire_bullet(player)

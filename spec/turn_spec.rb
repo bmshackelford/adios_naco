@@ -139,14 +139,22 @@ describe Turn do
       
     end
     
-    it "adds a bullet to the player's amo when you load"
-
+    it "adds a bullet to the player's amo when you load" do
+     t = Turn.create( :tick     => game.next_tick,
+                       :game_id  => game.id,
+                       :player1   => "Dad",
+                       :action1   => "load",
+                       :player2   => "Bea",
+                       :action2   => "shoot")
+     expect(t.game.player1_bullets).to eq(1) 
+    end
     it "shield protects player if oppent shoots"
 
     it "shoot doesn't kill openent if no bullets remain"
 
     it "sheild doesn't protect player if used more than three times in a row" 
     
+    it "kills both players when they both shoot"
   end
   
 end 

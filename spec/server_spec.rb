@@ -227,7 +227,12 @@ describe AdiosNaco do
         expect(Turn.last.player1).to eq('Beatrice')
         expect(Turn.last.action1).to eq('shoot') 
       end
-  
+  it "sends the number of bullets both players have" do 
+      post('/api/gameTurns', @second_turn)
+     res = JSON.parse(last_response.body)
+       expect(res["bullets"]).to eq(0) 
+       expect(res["oponent_bullets"]).to eq(1)
+  end
     end
     
   end  
