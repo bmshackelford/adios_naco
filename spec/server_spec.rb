@@ -132,7 +132,9 @@ describe AdiosNaco do
         Turn.auto_migrate!
       
         @game = Game.create(  :player1 => 'Beatrice', 
-                              :player2 => 'Dad' )
+                              :player2 => 'Dad',
+                              :player1_bullets => 1,
+                              :player2_bullets => 0 )
                                                             
         @tick = @game.last_tick
       
@@ -173,6 +175,16 @@ describe AdiosNaco do
         expect(Turn.last.action2).to eq('load') 
       end
       
+      it "sends the number of bullets both players have" do 
+        post('/api/gameTurns', @turn)
+        res = JSON.parse(last_response.body)
+        expect(res["bullets"]).to eq(0)
+        # even though player2 had loaded, bullets still equal zero because
+        # he doesn't get credit until the second player has taken his turn
+        expect(res["opponent_bullets"]).to eq(1)
+      end
+
+
     end 
   
     context "after the second player takes a turn" do
@@ -227,15 +239,14 @@ describe AdiosNaco do
         expect(Turn.last.player1).to eq('Beatrice')
         expect(Turn.last.action1).to eq('shoot') 
       end
-  it "sends the number of bullets both players have" do 
-      post('/api/gameTurns', @second_turn)
-     res = JSON.parse(last_response.body)
-       expect(res["bullets"]).to eq(0) 
-       expect(res["oponent_bullets"]).to eq(1)
-  end
-    end
-    
-  end  
-  
-  
+      
+      it "sends the number of bullets both players have" do 
+        post('/api/gameTurns', @second_turn)
+        res = JSON.parse(last_response.body)
+        expect(res["bullets"]).to eq(0) 
+        expect(res["opponent_bullets"]).to eq(1)
+      end
+
+    end   # after second player takes a turn 
+  end  # gameTurn endpoint
 end

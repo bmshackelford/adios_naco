@@ -62,18 +62,17 @@ module AdiosNaco
       body = JSON.parse request.body.read
       
       game = Game.get(body['game_id'])
-
       
       t = Turn.last(:game_id => body['game_id'], :tick => body['tick'])
 
       if body['player'] ==  game.player1
-        current_player  = :player1
-        current_action  = :action1
-        opponent_player = :player2
-        opponent_action = :action2
+        current_player   = :player1
+        current_action   = :action1
+        opponent_player  = :player2
+        opponent_action  = :action2
       end 
      
-       if body['player'] ==  game.player2
+      if body['player'] ==  game.player2
         current_player  = :player2
         current_action  = :action2
         opponent_player = :player1
@@ -93,17 +92,33 @@ module AdiosNaco
                           current_action  =>  body['action'])
       end
       
+      game = t.game # The game was modified in the turn so we 
+                    # need to grab the updated game or else reload it.
+
+      if body['player'] ==  game.player1
+        bullets          = game.player1_bullets
+        opponent_bullets = game.player2_bullets
+      end
+
+      if body['player'] ==  game.player2
+        bullets          = game.player2_bullets
+        opponent_bullets = game.player1_bullets
+      end 
+      
       # return HTTP 201 Resource Created status code
       status 201
       
       # returns this in the message body
-      turn_response = { 'game_id'  => t.game_id,
-                        'tick'     => t.tick.to_i,   
-                        'player'   => body['player'], 
-                        'action'   => body['action'] } 
+      turn_response = { 'game_id'          => t.game_id,
+                        'tick'             => t.tick.to_i,   
+                        'player'           => body['player'], 
+                        'action'           => body['action'],
+                        'bullets'          => bullets,
+                        'opponent_bullets' => opponent_bullets } 
+
       if t.action1 && t.action2
         turn_response.merge!({ 
-                        'opponent_action' => t[opponent_action]
+                        'opponent_action'  => t[opponent_action]
         })
       end
 

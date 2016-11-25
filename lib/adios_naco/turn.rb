@@ -26,7 +26,7 @@ module AdiosNaco
   
   # This is where the bulk of the logic for handling the game rules lives.
   def handle_turn
-    puts "==> Handling turn #{@id} for game #{game.id}\n#{@player1}: #{@action1} vs #{@player2}: #{@action2}"
+    # puts "==> Handling turn #{@id} for game #{game.id}\n#{@player1}: #{@action1} vs #{@player2}: #{@action2}"
     if complete?
             
       game.update(:dead_player => @player2) if @action1 == "shoot" && @action2 != "shield"
@@ -36,7 +36,7 @@ module AdiosNaco
       game.load(:player2) if @action2 == "load"
 
     end
-    puts "==> Resolved turn #{@id} for game #{game.id}\n#{game.inspect}\n\n"
+    # puts "==> Resolved turn #{@id} for game #{game.id}\n#{game.inspect}\n\n"
   end
   
   def first_attempt?
